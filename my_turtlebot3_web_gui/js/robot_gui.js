@@ -140,15 +140,29 @@ ros.on('error', function(event) {
 ros.on('connection', function() {
     console.log('Rosbridge connected.');
 
-    // Create the video viewer.
-    videoViewer = new MJPEGCANVAS.Viewer({
-	divID : 'videoCanvas',
-	host : mjpegHost,
-	port: mjpegPort,
-	width : videoStageWidth,
-	height : videoStageHeight,
-	quality: options['videoQuality'],
-	topic : options['videoTopic']
+    // Create a Param object for the video topic
+    var videoTopicParam = new ROSLIB.Param({
+        ros : ros,
+        name : param_ns + '/videoTopic'
+    });
+
+    videoTopicParam.get(function(value) {
+        if (value != null) {
+            options['videoTopic'] = value;
+        }
+
+        // Create the video viewer.
+        if (!videoViewer) {
+            videoViewer = new MJPEGCANVAS.Viewer({
+                divID : 'videoCanvas',
+                host : mjpegHost,
+                port: mjpegPort,
+                width : videoStageWidth,
+                height : videoStageHeight,
+                quality: options['videoQuality'],
+                topic : options['videoTopic']
+            });
+        }
     });
 
     // Create the main Navigation viewer.
