@@ -120,7 +120,7 @@ def main(argv):
         rospy.spin()
     except KeyboardInterrupt:
         print "Shutting down vision node."
-        cv2.DestroyAllWindows()
+        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
