@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>my_turtlebot3</name>
+  <name>my_turtlebot3_vision</name>
   <version>0.0.0</version>
-  <description>The my_turtlebot3 package</description>
+  <description>The my_turtlebot3_vision package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/my_turtlebot3</url> -->
+  <!-- <url type="website">http://wiki.ros.org/my_turtlebot3_vision</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -49,13 +49,17 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <exec_depend>my_turtlebot3_navigation</exec_depend>
-  <exec_depend>my_turtlebot3_vision</exec_depend>
-  <exec_depend>my_turtlebot3_web_gui</exec_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_export_depend>cv_bridge</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <metapackage/>
+
   </export>
 </package>

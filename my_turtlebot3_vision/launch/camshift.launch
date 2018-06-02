@@ -1,0 +1,17 @@
+<launch>
+    
+    <node pkg="tb_vision" type="camshift.py" name="camshift" output="screen"> 
+        
+        <remap from="input_rgb_image" to="/camera/rgb/image_raw" />
+        <remap from="input_depth_image" to="/camera/depth/image_raw" />
+        
+        <rosparam>
+            smin: 85
+            vmin: 50
+            vmax: 254
+            threshold: 50
+        </rosparam>
+
+    </node>
+
+</launch>

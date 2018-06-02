@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="my_turtlebot3_vision" type="cv_bridge_demo.py" name="cv_bridge_demo" output="screen">
+    <remap from="input_rgb_image" to="/image_raw" />
+    <remap from="input_depth_image" to="/camera/depth_registered/image_raw" />
+  </node>
+</launch>

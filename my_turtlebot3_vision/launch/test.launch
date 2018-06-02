@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="tb_vision" name="test" type="test.py" output="screen">
+  </node>
+  
+</launch>
