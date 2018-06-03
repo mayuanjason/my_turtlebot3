@@ -2,8 +2,7 @@
 
 import rospy
 import cv2
-import cv2.cv as cv
-from tb_vision.ros2opencv2 import ROS2OpenCV2
+from my_turtlebot3_vision.ros2opencv2 import ROS2OpenCV2
 
 
 class FaceDetector(ROS2OpenCV2):
@@ -31,8 +30,7 @@ class FaceDetector(ROS2OpenCV2):
 
         # Store all parameters together for passing to the detector
         self.haar_params = dict(scaleFactor=self.haar_scaleFactor,
-                                minNeighbors=self.haar_minNeighbors,
-                                flags=cv.CV_HAAR_DO_CANNY_PRUNING,
+                                minNeighbors=self.haar_minNeighbors,                            
                                 minSize=(self.haar_minSize, self.haar_minSize),
                                 maxSize=(self.haar_maxSize, self.haar_maxSize))
 
@@ -93,14 +91,14 @@ class FaceDetector(ROS2OpenCV2):
             if self.show_text:
                 font_face = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.5
-                cv2.putText(self.marker_image, "LOST FACE!", (int(self.frame_size[0] * 0.65), int(self.frame_size[1] * 0.9)), font_face, font_scale, cv.RGB(255, 50, 50))
+                cv2.putText(self.marker_image, "LOST FACE!", (int(self.frame_size[0] * 0.65), int(self.frame_size[1] * 0.9)), font_face, font_scale, (255, 50, 50))
                 face_box = None
 
         # Display the hit rate so far
         if self.show_text:
             font_face = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 0.5
-            cv2.putText(self.marker_image, "Hit Rate: " + str(trunc(self.hit_rate, 2)), (20, int(self.frame_size[1] * 0.9)), font_face, font_scale, cv.RGB(255, 255, 0))
+            cv2.putText(self.marker_image, "Hit Rate: " + str(trunc(self.hit_rate, 2)), (20, int(self.frame_size[1] * 0.9)), font_face, font_scale, (255, 255, 0))
 
         return face_box
 
@@ -114,8 +112,12 @@ def trunc(f, n):
 if __name__ == '__main__':
     try:
         node_name = "face_detector"
-        FaceDetector(node_name)
-        rospy.spin()
+        face_detector = FaceDetector(node_name)
+
+        while not rospy.is_shutdown():
+            if face_detector.display_image is not None:
+                face_detector.show_image(face_detector.cv_window_name, face_detector.display_image)
+
     except KeyboardInterrupt:
         print "Shutting down face detector node."
         cv2.destroyAllWindows()
