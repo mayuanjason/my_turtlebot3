@@ -1,7 +1,7 @@
 <launch>
-    <node pkg="tb_vision" type="good_features.py" name="good_features" output="screen">
+    <node pkg="my_turtlebot3_vision" type="good_features.py" name="good_features" output="screen">
 
-        <remap from="input_rgb_image" to="/camera/rgb/image_raw" />
+        <remap from="input_rgb_image" to="/image_raw" />
 
         <rosparam>
             gf_maxCorners: 200

@@ -2,8 +2,7 @@
 
 import rospy
 import cv2
-import cv2.cv as cv
-from tb_vision.good_features import GoodFeatures
+from my_turtlebot3_vision.good_features import GoodFeatures
 import numpy as np
 
 
@@ -73,12 +72,12 @@ class LKTracker(GoodFeatures):
                         self.keypoints = list()
                         self.track_box = None
                         self.detect_box = None
-                except:
-                    pass
+                except Exception as e:
+                    print e
 
             self.prev_grey = self.grey
-        except:
-            pass
+        except Exception as e:
+            print e
 
         return cv_image
 
@@ -113,7 +112,7 @@ class LKTracker(GoodFeatures):
                 new_keypoints.append((x, y))
 
                 # Draw the keypoint on the image
-                cv2.circle(self.marker_image, (x, y), self.feature_size, (0, 255, 0, 0), cv.CV_FILLED, 8, 0)
+                cv2.circle(self.marker_image, (x, y), self.feature_size, (0, 255, 0, 0), cv2.FILLED, 8, 0)
 
             self.keypoints = new_keypoints
 
@@ -126,7 +125,8 @@ class LKTracker(GoodFeatures):
             else:
                 # Otherwise, find the best fitting rectangle
                 track_box = cv2.boundingRect(keypoints_array)
-        except:
+        except Exception as e:
+            print e
             track_box = None
 
         return track_box
@@ -135,8 +135,11 @@ class LKTracker(GoodFeatures):
 if __name__ == '__main__':
     try:
         node_name = "lk_tracker"
-        LKTracker(node_name)
-        rospy.spin()
+        lk_tracker = LKTracker(node_name)
+        while not rospy.is_shutdown():
+            if lk_tracker.display_image is not None:
+                lk_tracker.show_image(lk_tracker.cv_window_name, lk_tracker.display_image)
+
     except KeyboardInterrupt:
         print "Shutting down LK Tracking node."
-        cv.DestroyAllWindows()
+        cv2.destroyAllWindows()

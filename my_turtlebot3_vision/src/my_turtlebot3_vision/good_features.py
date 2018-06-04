@@ -2,8 +2,7 @@
 
 import rospy
 import cv2
-import cv2.cv as cv
-from tb_vision.ros2opencv2 import ROS2OpenCV2
+from my_turtlebot3_vision.ros2opencv2 import ROS2OpenCV2
 import numpy as np
 
 
@@ -52,13 +51,14 @@ class GoodFeatures(ROS2OpenCV2):
             # Equalize the histogram to reduce lighting effects
             grey = cv2.equalizeHist(grey)
 
+            # Get the good feature keypoints in the selected region
             keypoints = self.get_keypoints(grey, self.detect_box)
 
             # If we have points, display them
             if keypoints is not None and len(keypoints) > 0:
                 for x, y in keypoints:
                     cv2.circle(self.marker_image, (x, y),
-                               self.feature_size, (0, 255, 0, 0), cv.CV_FILLED, 8, 0)
+                               self.feature_size, (0, 255, 0, 0), cv2.FILLED, 8, 0)
 
             # Process any special keyboard commands
             if self.keystroke != -1:
@@ -68,10 +68,10 @@ class GoodFeatures(ROS2OpenCV2):
                         # Clear the current keypoints
                         keypoints = list()
                         self.detect_box = None
-                except:
-                    pass
-        except:
-            pass
+                except Exception as e:
+                    print e
+        except Exception as e:
+            print e
 
         return cv_image
 
@@ -101,8 +101,12 @@ class GoodFeatures(ROS2OpenCV2):
 if __name__ == '__main__':
     try:
         node_name = "good_features"
-        GoodFeatures(node_name)
-        rospy.spin()
+        good_feature = GoodFeatures(node_name)
+
+        while not rospy.is_shutdown():
+            if good_feature.display_image is not None:
+                good_feature.show_image(good_feature.cv_window_name, good_feature.display_image) 
+ 
     except KeyboardInterrupt:
         print "Shutting down the Good Features node."
-        cv.DestroyAllWindows()
+        cv2.destroyAllWindows()

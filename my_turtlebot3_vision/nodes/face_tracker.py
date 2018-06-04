@@ -2,9 +2,8 @@
 
 import rospy
 import cv2
-import cv2.cv as cv
-from tb_vision.face_detector import FaceDetector
-from tb_vision.lk_tracker import LKTracker
+from my_turtlebot3_vision.face_detector import FaceDetector
+from my_turtlebot3_vision.lk_tracker import LKTracker
 
 
 class FaceTracker(FaceDetector, LKTracker):
@@ -76,8 +75,11 @@ class FaceTracker(FaceDetector, LKTracker):
 if __name__ == '__main__':
     try:
         node_name = "face_tracker"
-        FaceTracker(node_name)
-        rospy.spin()
+        face_tracker = FaceTracker(node_name)
+        while not rospy.is_shutdown():
+            if face_tracker.display_image is not None:
+                face_tracker.show_image(face_tracker.cv_window_name, face_tracker.display_image)
+
     except KeyboardInterrupt:
         print "Shutting down face tracker node."
-        cv.DestroyAllWindows()
+        cv2.destroyAllWindows()

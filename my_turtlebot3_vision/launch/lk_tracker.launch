@@ -1,7 +1,7 @@
 <launch>
-	<node pkg="tb_vision" type="lk_tracker.py" name="lk_tracker" output="screen">
+	<node pkg="my_turtlebot3_vision" type="lk_tracker.py" name="lk_tracker" output="screen">
 
-		<remap from="input_rgb_image" to="/camera/rgb/image_raw" />
+		<remap from="input_rgb_image" to="/image_raw" />
 
 		<rosparam>
             gf_maxCorners: 200
