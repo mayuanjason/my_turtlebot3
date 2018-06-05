@@ -1,0 +1,12 @@
+<launch>
+
+    <node pkg="my_turtlebot3_vision" type="face_detector2.py" name="face_detector2" output="screen">
+
+        <remap from="input_rgb_image" to="/image_raw" />
+
+        <param name="pnet_graph_filename" value="$(find my_turtlebot3_vision)/data/mtcnn/p2838.graph" />
+        <param name="onet_graph_filename" value="$(find my_turtlebot3_vision)/data/mtcnn/o.graph" />
+
+    </node>
+
+</launch>
