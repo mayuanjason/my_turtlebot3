@@ -19,10 +19,12 @@ class FaceTracker(object):
 
         rospy.on_shutdown(self.cleanup)
 
-        # A number of parameters to determine what gets displayed on the screen. These can be overridden the appropriate launch file
+        # A number of parameters to determine what gets displayed on the
+        # screen. These can be overridden the appropriate launch file
         self.show_text = rospy.get_param("~show_text", True)
         self.show_boxes = rospy.get_param("~show_boxes", True)
-        self.flip_image = rospy.get_param("~flip_image", False)   # TBD: do we need it?
+        self.flip_image = rospy.get_param(
+            "~flip_image", False)   # TBD: do we need it?
         self.feature_size = rospy.get_param("~feature_size", 1)
         self.show_add_drop = rospy.get_param("~show_add_drop", False)
 
@@ -56,10 +58,12 @@ class FaceTracker(object):
         self.gf_qualityLevel = rospy.get_param("~gf_qualityLevel", 0.02)
         self.gf_minDistance = rospy.get_param("~gf_minDistance", 7)
         self.gf_blockSize = rospy.get_param("~gf_blockSize", 10)
-        self.gf_useHarrisDetector = rospy.get_param("~gf_useHarrisDetector", True)
+        self.gf_useHarrisDetector = rospy.get_param(
+            "~gf_useHarrisDetector", True)
         self.gf_k = rospy.get_param("~gf_k", 0.04)
 
-        # Store all Good features parameters together for passing to the detector
+        # Store all Good features parameters together for passing to the
+        # detector
         self.gf_params = dict(maxCorners=self.gf_maxCorners,
                               qualityLevel=self.gf_qualityLevel,
                               minDistance=self.gf_minDistance,
@@ -70,7 +74,8 @@ class FaceTracker(object):
         # LK parameters
         self.lk_winSize = rospy.get_param("~lk_winSize", (10, 10))
         self.lk_maxLevel = rospy.get_param("~lk_maxLevel", 2)
-        self.lk_criteria = rospy.get_param("~lk_criteria", (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 20, 0.01))
+        self.lk_criteria = rospy.get_param(
+            "~lk_criteria", (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 20, 0.01))
 
         # Store all LK parameters together for passing to the detector
         self.lk_params = dict(winSize=self.lk_winSize,
@@ -78,15 +83,19 @@ class FaceTracker(object):
                               criteria=self.lk_criteria)
 
         # Face tracking parameters
-        self.use_depth_for_tracking = rospy.get_param("~use_depth_for_tracking", False)
+        self.use_depth_for_tracking = rospy.get_param(
+            "~use_depth_for_tracking", False)
         self.min_keypoints = rospy.get_param("~min_keypoints", 20)
         self.abs_min_keypoints = rospy.get_param("~abs_min_keypoints", 6)
         self.std_err_xy = rospy.get_param("~std_err_xy", 2.5)
         self.pct_err_z = rospy.get_param("~pct_err_z", 0.42)
         self.max_mse = rospy.get_param("~max_mse", 10000)
-        self.add_keypoint_distance = rospy.get_param("~add_keypoint_distance", 10)
-        self.add_keypoints_interval = rospy.get_param("~add_keypoints_interval", 1)
-        self.drop_keypoints_interval = rospy.get_param("~drop_keypoints_interval", 1)
+        self.add_keypoint_distance = rospy.get_param(
+            "~add_keypoint_distance", 10)
+        self.add_keypoints_interval = rospy.get_param(
+            "~add_keypoints_interval", 1)
+        self.drop_keypoints_interval = rospy.get_param(
+            "~drop_keypoints_interval", 1)
         self.expand_roi_init = rospy.get_param("~expand_roi", 1.02)
         self.expand_roi = self.expand_roi_init
         self.face_tracking = True
@@ -140,8 +149,10 @@ class FaceTracker(object):
 
         # Subscribe to the image and depth topics and set the appropriate callbacks
         # The image topic names can be remapped in the appropriate launch file
-        self.image_sub = rospy.Subscriber("input_rgb_image", Image, self.image_callback, queue_size=1)
-        self.depth_sub = rospy.Subscriber("input_depth_image", Image, self.depth_callback, queue_size=1)
+        self.image_sub = rospy.Subscriber(
+            "input_rgb_image", Image, self.image_callback, queue_size=1)
+        self.depth_sub = rospy.Subscriber(
+            "input_depth_image", Image, self.depth_callback, queue_size=1)
 
     def on_mouse_click(self, event, x, y, flags, param):
         # This function allows the user to selection a ROI using the mouse
@@ -169,7 +180,8 @@ class FaceTracker(object):
         # Time this loop to get cycles per second
         start = time.time()
 
-        # Convert the ROS Image to OpenCV format using a cv_bridge helper function
+        # Convert the ROS Image to OpenCV format using a cv_bridge helper
+        # function
         self.frame = self.convert_image(ros_image)
 
         # Some webcams invert the image
@@ -200,9 +212,11 @@ class FaceTracker(object):
             self.processed_image = np.zeros_like(self.processed_image)
 
         # Merge the processed image and the marker image
-        self.display_image = cv2.bitwise_or(self.processed_image, self.marker_image)
+        self.display_image = cv2.bitwise_or(
+            self.processed_image, self.marker_image)
 
-        # If we have a track box, then display it. The track box can be either a regular cvRect (x,y,w,h) or a rotated Rect (center, size, angle).
+        # If we have a track box, then display it. The track box can be either
+        # a regular cvRect (x,y,w,h) or a rotated Rect (center, size, angle).
         if self.show_boxes:
             if self.track_box is not None and self.is_rect_nonzero(self.track_box):
                 if len(self.track_box) == 4:
@@ -216,19 +230,25 @@ class FaceTracker(object):
 
                 # For face tracking, an upright rectangle look best
                 if self.face_tracking:
-                    pt1 = (int(center[0] - size[0] / 2), int(center[1] - size[1] / 2))
-                    pt2 = (int(center[0] + size[0] / 2), int(center[1] + size[1] / 2))
-                    cv2.rectangle(self.display_image, pt1, pt2, cv.RGB(50, 255, 50), self.feature_size, 8, 0)
+                    pt1 = (int(center[0] - size[0] / 2),
+                           int(center[1] - size[1] / 2))
+                    pt2 = (int(center[0] + size[0] / 2),
+                           int(center[1] + size[1] / 2))
+                    cv2.rectangle(self.display_image, pt1, pt2, cv.RGB(
+                        50, 255, 50), self.feature_size, 8, 0)
                 else:
                     # Otherwise display a rotated rectangle
                     vertices = np.int0(cv.BoxPoints(self.track_box))
-                    cv2.drawContours(self.display_image, [vertices], 0, cv.RGB(50, 255, 50), self.feature_size)
+                    cv2.drawContours(self.display_image, [vertices], 0, cv.RGB(
+                        50, 255, 50), self.feature_size)
 
-            # If we don't yet have a track box, display the detect box if present
+            # If we don't yet have a track box, display the detect box if
+            # present
             elif self.detect_box is not None and self.is_rect_nonzero(self.detect_box):
                 (pt1_x, pt1_y, w, h) = self.detect_box
                 if self.show_boxes:
-                    cv2.rectangle(self.display_image, (pt1_x, pt1_y), (pt1_x + w, pt1_y + h), cv.RGB(50, 255, 50), self.feature_size, 8, 0)
+                    cv2.rectangle(self.display_image, (pt1_x, pt1_y), (pt1_x + w,
+                                                                       pt1_y + h), cv.RGB(50, 255, 50), self.feature_size, 8, 0)
 
         # Publish the ROI
         self.publish_roi()
@@ -247,7 +267,8 @@ class FaceTracker(object):
             font_face = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 0.5
 
-            # Print cycles per second (CPS) and resolution (RES) at top of the image
+            # Print cycles per second (CPS) and resolution (RES) at top of the
+            # image
             if self.frame_size[0] >= 640:
                 vstart = 25
                 voffset = int(50 + self.frame_size[1] / 120.)
@@ -258,8 +279,10 @@ class FaceTracker(object):
                 vstart = 10
                 voffset = int(20 + self.frame_size[1] / 120.)
 
-            cv2.putText(self.display_image, "CPS: " + str(self.cps), (10, vstart), font_face, font_scale, cv.RGB(255, 255, 0))
-            cv2.putText(self.display_image, "RES: " + str(self.frame_size[0]) + "X" + str(self.frame_size[1]), (10, voffset), font_face, font_scale, cv.RGB(255, 255, 0))
+            cv2.putText(self.display_image, "CPS: " + str(self.cps),
+                        (10, vstart), font_face, font_scale, cv.RGB(255, 255, 0))
+            cv2.putText(self.display_image, "RES: " + str(self.frame_size[0]) + "X" + str(
+                self.frame_size[1]), (10, voffset), font_face, font_scale, cv.RGB(255, 255, 0))
 
         # Update the image display
         cv2.imshow(self.cv_window_name, self.display_image)
@@ -356,18 +379,21 @@ class FaceTracker(object):
                 # STEP 2: If we aren't yet tracking keypoints, get them now
                 if not self.track_box or not self.is_rect_nonzero(self.track_box):
                     self.track_box = self.detect_box
-                    self.keypoints = self.get_keypoints(self.grey, self.track_box)
+                    self.keypoints = self.get_keypoints(
+                        self.grey, self.track_box)
 
                 # Store a copy of the current grey image used for LK tracking
                 if self.prev_grey is None:
                     self.prev_grey = self.grey
 
                 # STEP 3: If we have keypoints, track them using optical flow
-                self.track_box = self.track_keypoints(self.grey, self.prev_grey)
+                self.track_box = self.track_keypoints(
+                    self.grey, self.prev_grey)
 
                 # STEP 4: Drop keypoints that are too far from the main cluster
                 if self.frame_index % self.drop_keypoints_interval == 0 and len(self.keypoints) > 0:
-                    ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(self.abs_min_keypoints, self.std_err_xy, self.max_mse)
+                    ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(
+                        self.abs_min_keypoints, self.std_err_xy, self.max_mse)
                     if score == -1:
                         self.detect_box = None
                         self.track_box = None
@@ -391,26 +417,31 @@ class FaceTracker(object):
     def detect_face(self, input_image):
         # First check one of the frontal templates
         if self.cascade_1:
-            faces = self.cascade_1.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_1.detectMultiScale(
+                input_image, **self.haar_params)
 
         # If that fails, check the profile template
         if len(faces) == 0 and self.cascade_3:
-            faces = self.cascade_3.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_3.detectMultiScale(
+                input_image, **self.haar_params)
 
         # If that also fails, check a the other frontal template
         if len(faces) == 0 and self.cascade_2:
-            faces = self.cascade_2.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_2.detectMultiScale(
+                input_image, **self.haar_params)
 
         # The faces variable holds a list of face boxes.
         # If one or more faces are detected, return the first one.first
         if len(faces) > 0:
             face_box = faces[0]
         else:
-            # If no face were detected, print the "LOST FACE" message on the screen
+            # If no face were detected, print the "LOST FACE" message on the
+            # screen
             if self.show_text:
                 font_face = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.5
-                cv2.putText(self.marker_image, "LOST FACE!", (int(self.frame_size[0] * 0.65), int(self.frame_size[1] * 0.9)), font_face, font_scale, cv.RGB(255, 50, 50))
+                cv2.putText(self.marker_image, "LOST FACE!", (int(self.frame_size[
+                            0] * 0.65), int(self.frame_size[1] * 0.9)), font_face, font_scale, cv.RGB(255, 50, 50))
                 face_box = None
 
         return face_box
@@ -430,7 +461,8 @@ class FaceTracker(object):
 
         # Compute the good feature keypoints within the selected region
         keypoints = list()
-        kp = cv2.goodFeaturesToTrack(input_image, mask=self.mask, **self.gf_params)
+        kp = cv2.goodFeaturesToTrack(
+            input_image, mask=self.mask, **self.gf_params)
         if kp is not None and len(kp) > 0:
             for x, y in np.float32(kp).reshape(-1, 2):
                 keypoints.append((x, y))
@@ -480,9 +512,11 @@ class FaceTracker(object):
             for x, y in [np.int32(p) for p in self.keypoints]:
                 cv2.circle(mask, (x, y), 5, 0, -1)
 
-        new_keypoints = cv2.goodFeaturesToTrack(self.grey, mask=mask, **self.gf_params)
+        new_keypoints = cv2.goodFeaturesToTrack(
+            self.grey, mask=mask, **self.gf_params)
 
-        # Append new keypoints to the current list if they are not too far from the current cluster
+        # Append new keypoints to the current list if they are not too far from
+        # the current cluster
         if new_keypoints is not None:
             for x, y in np.float32(new_keypoints).reshape(-1, 2):
                 distance = self.distance_to_cluster((x, y), self.keypoints)
@@ -491,7 +525,8 @@ class FaceTracker(object):
 
                     # Briefly display a blue disc where the new point is added
                     if self.show_add_drop:
-                        cv2.circle(self.marker_image, (x, y), 3, (255, 255, 0, 0), cv.CV_FILLED, 2, 0)
+                        cv2.circle(self.marker_image, (x, y), 3,
+                                   (255, 255, 0, 0), cv.CV_FILLED, 2, 0)
 
             # Remove duplicate keypoints
             self.keypoints = list(set(self.keypoints))
@@ -502,7 +537,8 @@ class FaceTracker(object):
             if point == test_point:
                 continue
             # Use L1 distance since it is faster than L2
-            distance = abs(test_point[0] - point[0]) + abs(test_point[1] - point[1])
+            distance = abs(test_point[0] - point[0]) + \
+                abs(test_point[1] - point[1])
             if distance < min_distance:
                 min_distance = distance
         return min_distance
@@ -552,9 +588,11 @@ class FaceTracker(object):
         else:
             mean_z = -1
 
-        # Compute the x-y MSE (mean squared error) of the cluster in the camera plane
+        # Compute the x-y MSE (mean squared error) of the cluster in the camera
+        # plane
         for point in self.keypoints:
-            sse += (point[0] - mean_x) * (point[0] - mean_x) + (point[1] - mean_y) * (point[1] - mean_y)
+            sse += (point[0] - mean_x) * (point[0] - mean_x) + \
+                (point[1] - mean_y) * (point[1] - mean_y)
 
         # Get the average over the number of feature points
         mse_xy = sse / n_xy
@@ -566,14 +604,16 @@ class FaceTracker(object):
         # Throw away the outliers based on the x-y variance
         max_err = 0
         for point in self.keypoints:
-            std_err = ((point[0] - mean_x) * (point[0] - mean_x) + (point[1] - mean_y) * (point[1] - mean_y)) / mse_xy
+            std_err = ((point[0] - mean_x) * (point[0] - mean_x) +
+                       (point[1] - mean_y) * (point[1] - mean_y)) / mse_xy
             if std_err > max_err:   # mayuan: this can be removed
                 max_err = std_err
             if std_err > outlier_threshold:
                 keypoints_xy.remove(point)
                 if self.show_add_drop:
                     # Briefly mark the removed points in red
-                    cv2.circle(self.marker_image, (point[0], point[1]), 3, (0, 0, 255), cv.CV_FILLED, 2, 0)
+                    cv2.circle(self.marker_image, (point[0], point[
+                               1]), 3, (0, 0, 255), cv.CV_FILLED, 2, 0)
                 try:
                     keypoints_z.remove(point)
                     n_z -= 1
@@ -612,7 +652,8 @@ class FaceTracker(object):
                         keypoints_xy.remove(point)
                         if self.show_add_drop:
                             # Briefly mark the removed points in red
-                            cv2.circle(self.marker_image, (point[0], point[1]), 2, (0, 0, 255), cv.CV_FILLED)
+                            cv2.circle(self.marker_image, (point[0], point[
+                                       1]), 2, (0, 0, 255), cv.CV_FILLED)
                 except:
                     pass
         else:
@@ -629,20 +670,27 @@ class FaceTracker(object):
         return ((mean_x, mean_y, mean_z), mse_xy, mse_z, score)
 
     def track_keypoints(self, grey, prev_grey):
-        # We are tracking points between the previous frame and the current frame
+        # We are tracking points between the previous frame and the current
+        # frame
         img0, img1 = prev_grey, grey
 
-        # Reshape the current keypoints into a numpy array required by calcOpticalFlowPyrLK()
+        # Reshape the current keypoints into a numpy array required by
+        # calcOpticalFlowPyrLK()
         p0 = np.float32([p for p in self.keypoints]).reshape(-1, 1, 2)
 
-        # Calculate the optical flow from the previous frame to the current frame
-        p1, st, err = cv2.calcOpticalFlowPyrLK(img0, img1, p0, None, **self.lk_params)
+        # Calculate the optical flow from the previous frame to the current
+        # frame
+        p1, st, err = cv2.calcOpticalFlowPyrLK(
+            img0, img1, p0, None, **self.lk_params)
 
-        # Do the reverse calculation: from the current frame to the previous frame
+        # Do the reverse calculation: from the current frame to the previous
+        # frame
         try:
-            p0r, st, err = cv2.calcOpticalFlowPyrLK(img1, img0, p1, None, **self.lk_params)
+            p0r, st, err = cv2.calcOpticalFlowPyrLK(
+                img1, img0, p1, None, **self.lk_params)
 
-            # Compute the distance between corresponding points in the two flows
+            # Compute the distance between corresponding points in the two
+            # flows
             d = abs(p0 - p0r).reshape(-1, 2).max(-1)
 
             # If the distance between pairs of points is < 1 pixel, set a value in the
@@ -652,19 +700,22 @@ class FaceTracker(object):
             # Initialize a list to hold new keypoints
             new_keypoints = list()
 
-            # Cycle through all current and new keypoints and only keep those that satisfy the "good" condition above
+            # Cycle through all current and new keypoints and only keep those
+            # that satisfy the "good" condition above
             for (x, y), good_flag in zip(p1.reshape(-1, 2), good):
                 if not good_flag:
                     continue
                 new_keypoints.append((x, y))
 
                 # Draw the keypoint on the image
-                cv2.circle(self.marker_image, (x, y), self.feature_size, (0, 255, 0, 0), cv.CV_FILLED, 8, 0)
+                cv2.circle(self.marker_image, (x, y), self.feature_size,
+                           (0, 255, 0, 0), cv.CV_FILLED, 8, 0)
 
             self.keypoints = new_keypoints
 
             # Convert the keypoints list to a numpy array
-            keypoints_array = np.float32([p for p in self.keypoints]).reshape(-1, 1, 2)
+            keypoints_array = np.float32(
+                [p for p in self.keypoints]).reshape(-1, 1, 2)
 
             # If we have enough points, find the best fit ellipse around them
             if len(self.keypoints) > 6:
@@ -681,17 +732,21 @@ class FaceTracker(object):
         return cv_image
 
     def display_selection(self):
-        # If the user is selecting a region with the mouse, display the corresonding rectangle for feedback.
+        # If the user is selecting a region with the mouse, display the
+        # corresonding rectangle for feedback.
         if self.drag_start and self.is_rect_nonzero(self.selection):
             x, y, w, h = self.selection
-            cv2.rectangle(self.marker_image, (x, y), (x + w, y + h), (0, 255, 255), self.feature_size)
+            cv2.rectangle(self.marker_image, (x, y), (x + w, y + h),
+                          (0, 255, 255), self.feature_size)
             self.selected_point = None
 
-        # Else if the user has clicked on a point on the image, display it as a small circle.
+        # Else if the user has clicked on a point on the image, display it as a
+        # small circle.
         elif not self.selected_point is None:
             x = self.selected_point[0]
             y = self.selected_point[1]
-            cv2.circle(self.marker_image, (x, y), self.feature_size, (0, 255, 255), self.feature_size)
+            cv2.circle(self.marker_image, (x, y), self.feature_size,
+                       (0, 255, 255), self.feature_size)
 
     def is_rect_nonzero(self, rect):
         # First assume a simple CRect type
@@ -710,8 +765,10 @@ class FaceTracker(object):
         try:
             if len(roi) == 3:
                 (center, size, angle) = roi
-                pt1 = (int(center[0] - size[0] / 2), int(center[1] - size[1] / 2))
-                pt2 = (int(center[0] + size[0] / 2), int(center[1] + size[1] / 2))
+                pt1 = (int(center[0] - size[0] / 2),
+                       int(center[1] - size[1] / 2))
+                pt2 = (int(center[0] + size[0] / 2),
+                       int(center[1] + size[1] / 2))
                 rect = [pt1[0], pt1[1], pt2[0] - pt1[0], pt2[1] - pt1[1]]
             else:
                 rect = list(roi)

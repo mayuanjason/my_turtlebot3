@@ -90,7 +90,8 @@ class GoodFeatures(ROS2OpenCV2):
 
         # Compute the good feature keypoints within the selected region
         keypoints = list()
-        kp = cv2.goodFeaturesToTrack(input_image, mask=self.mask, **self.gf_params)
+        kp = cv2.goodFeaturesToTrack(
+            input_image, mask=self.mask, **self.gf_params)
         if kp is not None and len(kp) > 0:
             for x, y in np.float32(kp).reshape(-1, 2):
                 keypoints.append((x, y))
@@ -105,8 +106,9 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             if good_feature.display_image is not None:
-                good_feature.show_image(good_feature.cv_window_name, good_feature.display_image) 
- 
+                good_feature.show_image(
+                    good_feature.cv_window_name, good_feature.display_image)
+
     except KeyboardInterrupt:
         print "Shutting down the Good Features node."
         cv2.destroyAllWindows()

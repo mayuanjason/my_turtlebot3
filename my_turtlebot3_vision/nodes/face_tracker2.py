@@ -17,15 +17,19 @@ class FaceTracker(FaceDetector, LKTracker):
         self.show_text = rospy.get_param("~show_text", True)
         self.show_add_drop = rospy.get_param("~show_add_drop", False)
         self.feature_size = rospy.get_param("~feature_size", 1)
-        self.use_depth_for_tracking = rospy.get_param("~use_depth_for_tracking", False)
+        self.use_depth_for_tracking = rospy.get_param(
+            "~use_depth_for_tracking", False)
         self.min_keypoints = rospy.get_param("~min_keypoints", 20)
         self.abs_min_keypoints = rospy.get_param("~abs_min_keypoints", 6)
         self.std_err_xy = rospy.get_param("~std_err_xy", 2.5)
         self.pct_err_z = rospy.get_param("~pct_err_z", 0.42)
         self.max_mse = rospy.get_param("~max_mse", 10000)
-        self.add_keypoint_distance = rospy.get_param("~add_keypoint_distance", 10)
-        self.add_keypoints_interval = rospy.get_param("~add_keypoints_interval", 1)
-        self.drop_keypoints_interval = rospy.get_param("~drop_keypoints_interval", 1)
+        self.add_keypoint_distance = rospy.get_param(
+            "~add_keypoint_distance", 10)
+        self.add_keypoints_interval = rospy.get_param(
+            "~add_keypoints_interval", 1)
+        self.drop_keypoints_interval = rospy.get_param(
+            "~drop_keypoints_interval", 1)
         self.expand_roi_init = rospy.get_param("~expand_roi", 1.02)
         self.expand_roi = self.expand_roi_init
         self.face_tracking = True
@@ -58,18 +62,21 @@ class FaceTracker(FaceDetector, LKTracker):
                 # STEP 2: If we aren't yet tracking keypoints, get them now
                 if not self.track_box or not self.is_rect_nonzero(self.track_box):
                     self.track_box = self.detect_box
-                    self.keypoints = self.get_keypoints(self.grey, self.track_box)
+                    self.keypoints = self.get_keypoints(
+                        self.grey, self.track_box)
 
                 # Store a copy of the current grey image used for LK tracking
                 if self.prev_grey is None:
                     self.prev_grey = self.grey
 
                 # STEP 3: If we have keypoints, track them using optical flow
-                self.track_box = self.track_keypoints(self.grey, self.prev_grey)
+                self.track_box = self.track_keypoints(
+                    self.grey, self.prev_grey)
 
                 # STEP 4: Drop keypoints that are too far from the main cluster
                 if self.frame_index % self.drop_keypoints_interval == 0 and len(self.keypoints) > 0:
-                    ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(self.abs_min_keypoints, self.std_err_xy, self.max_mse)
+                    ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(
+                        self.abs_min_keypoints, self.std_err_xy, self.max_mse)
                     if score == -1:
                         self.detect_box = None
                         self.track_box = None
@@ -148,9 +155,11 @@ class FaceTracker(FaceDetector, LKTracker):
             for x, y in [np.int32(p) for p in self.keypoints]:
                 cv2.circle(mask, (x, y), 5, 0, -1)
 
-        new_keypoints = cv2.goodFeaturesToTrack(self.grey, mask=mask, **self.gf_params)
+        new_keypoints = cv2.goodFeaturesToTrack(
+            self.grey, mask=mask, **self.gf_params)
 
-        # Append new keypoints to the current list if they are not too far from the current cluster
+        # Append new keypoints to the current list if they are not too far from
+        # the current cluster
         if new_keypoints is not None:
             for x, y in np.float32(new_keypoints).reshape(-1, 2):
                 distance = self.distance_to_cluster((x, y), self.keypoints)
@@ -159,7 +168,8 @@ class FaceTracker(FaceDetector, LKTracker):
 
                     # Briefly display a blue disc where the new point is added
                     if self.show_add_drop:
-                        cv2.circle(self.marker_image, (x, y), 3, (255, 255, 0, 0), cv2.FILLED, 2, 0)
+                        cv2.circle(self.marker_image, (x, y), 3,
+                                   (255, 255, 0, 0), cv2.FILLED, 2, 0)
 
             # Remove duplicate keypoints
             self.keypoints = list(set(self.keypoints))
@@ -170,7 +180,8 @@ class FaceTracker(FaceDetector, LKTracker):
             if point == test_point:
                 continue
             # Use L1 distance since it is faster than L2
-            distance = abs(test_point[0] - point[0]) + abs(test_point[1] - point[1])
+            distance = abs(test_point[0] - point[0]) + \
+                abs(test_point[1] - point[1])
             if distance < min_distance:
                 min_distance = distance
         return min_distance
@@ -220,9 +231,11 @@ class FaceTracker(FaceDetector, LKTracker):
         else:
             mean_z = -1
 
-        # Compute the x-y MSE (mean squared error) of the cluster in the camera plane
+        # Compute the x-y MSE (mean squared error) of the cluster in the camera
+        # plane
         for point in self.keypoints:
-            sse += (point[0] - mean_x) * (point[0] - mean_x) + (point[1] - mean_y) * (point[1] - mean_y)
+            sse += (point[0] - mean_x) * (point[0] - mean_x) + \
+                (point[1] - mean_y) * (point[1] - mean_y)
 
         # Get the average over the number of feature points
         mse_xy = sse / n_xy
@@ -234,14 +247,16 @@ class FaceTracker(FaceDetector, LKTracker):
         # Throw away the outliers based on the x-y variance
         max_err = 0
         for point in self.keypoints:
-            std_err = ((point[0] - mean_x) * (point[0] - mean_x) + (point[1] - mean_y) * (point[1] - mean_y)) / mse_xy
+            std_err = ((point[0] - mean_x) * (point[0] - mean_x) +
+                       (point[1] - mean_y) * (point[1] - mean_y)) / mse_xy
             if std_err > max_err:   # mayuan: this can be removed
                 max_err = std_err
             if std_err > outlier_threshold:
                 keypoints_xy.remove(point)
                 if self.show_add_drop:
                     # Briefly mark the removed points in red
-                    cv2.circle(self.marker_image, (point[0], point[1]), 3, (0, 0, 255), cv2.FILLED, 2, 0)
+                    cv2.circle(self.marker_image, (point[0], point[
+                               1]), 3, (0, 0, 255), cv2.FILLED, 2, 0)
                 try:
                     keypoints_z.remove(point)
                     n_z -= 1
@@ -280,7 +295,8 @@ class FaceTracker(FaceDetector, LKTracker):
                         keypoints_xy.remove(point)
                         if self.show_add_drop:
                             # Briefly mark the removed points in red
-                            cv2.circle(self.marker_image, (point[0], point[1]), 2, (0, 0, 255), cv2.FILLED)
+                            cv2.circle(self.marker_image, (point[0], point[
+                                       1]), 2, (0, 0, 255), cv2.FILLED)
                 except:
                     pass
         else:
@@ -303,7 +319,8 @@ if __name__ == '__main__':
         face_tracker = FaceTracker(node_name)
         while not rospy.is_shutdown():
             if face_tracker.display_image is not None:
-                face_tracker.show_image(face_tracker.cv_window_name, face_tracker.display_image)
+                face_tracker.show_image(
+                    face_tracker.cv_window_name, face_tracker.display_image)
 
     except KeyboardInterrupt:
         print "Shutting down face tracker node."

@@ -51,7 +51,7 @@ class ROS2OpenCV2(object):
         self.keep_marker_history = False
         self.night_mode = False
         self.auto_face_tracking = False
-        # Cycle per second = number of processing loops per second.
+        # Cycles per second = number of processing loops per second.
         self.cps = 0
         self.cps_values = list()
         self.cps_n_values = 20
@@ -65,11 +65,10 @@ class ROS2OpenCV2(object):
         cv2.namedWindow(self.cv_window_name, cv2.WINDOW_NORMAL)
         if self.resize_window_width > 0 and self.resize_window_height > 0:
             cv2.resizeWindow(self.cv_window_name, self.resize_window_width,
-                                self.resize_window_height)
+                             self.resize_window_height)
 
         # Set a callback on mouse clicks on the image window
-        cv2.setMouseCallback(self.cv_window_name,
-                                self.on_mouse_click, None)
+        cv2.setMouseCallback(self.cv_window_name, self.on_mouse_click, None)
 
         # Create the cv_bridge object
         self.bridge = CvBridge()
@@ -112,7 +111,8 @@ class ROS2OpenCV2(object):
         # Time this loop to get cycles per second
         start = time.time()
 
-        # Convert the ROS Image to OpenCV format using a cv_bridge helper function
+        # Convert the ROS Image to OpenCV format using a cv_bridge helper
+        # function
         frame = self.convert_image(ros_image)
 
         # Some webcams invert the image
@@ -128,7 +128,8 @@ class ROS2OpenCV2(object):
         if self.marker_image is None:
             self.marker_image = np.zeros_like(frame)
 
-        # Copy the current frame to the global image in case we need it elsewhere
+        # Copy the current frame to the global image in case we need it
+        # elsewhere
         self.frame = frame.copy()
 
         # Reset the marker image if we're not displaying the history
@@ -165,7 +166,7 @@ class ROS2OpenCV2(object):
                 else:
                     (center, size, angle) = self.track_box
 
-                # For face tracking, an upright rectangle look best
+                # For face tracking, an upright rectangle looks best
                 if self.face_tracking:
                     pt1 = (int(center[0] - size[0] / 2),
                            int(center[1] - size[1] / 2))
@@ -174,13 +175,14 @@ class ROS2OpenCV2(object):
                     cv2.rectangle(self.display_image, pt1, pt2,
                                   (50, 255, 50), self.feature_size, 8, 0)
                 else:
-                    # Otherwise display a rotated rectangle
+                    # Otherwise, display a rotated rectangle
                     vertices = np.int0(cv2.boxPoints(self.track_box))
                     cv2.drawContours(self.display_image,
                                      [vertices], 0, (50, 255, 50),
                                      self.feature_size)
 
-            # If we don't yet have a track box, display the detect box if present
+            # If we don't yet have a track box, display the detect box if
+            # present
             elif self.detect_box is not None and self.is_rect_nonzero(self.detect_box):
                 (pt1_x, pt1_y, w, h) = self.detect_box
                 if self.show_boxes:
@@ -240,13 +242,13 @@ class ROS2OpenCV2(object):
                 elif cc == 't':
                     self.show_text = not self.show_text
                 elif cc == 'q':
-                    # They user has press the q key, so exit
+                    # The user has pressed the q key, so exit
                     rospy.signal_shutdown("User hit q key to quit.")
             except:
                 pass
 
     def depth_callback(self, ros_image):
-        # Convert the ROS image to OpenCV format using a cv_bridge function
+        # Convert the ROS image to OpenCV format using a cv_bridge helper function
         depth_image = self.convert_depth_image(ros_image)
 
         # Some webcams invert the image
@@ -258,9 +260,9 @@ class ROS2OpenCV2(object):
 
         # Make global copies
         self.depth_image = depth_image.copy()
-          
+
     def convert_image(self, ros_image):
-        #  Use cv_bridge() to convert the ROS image to OpenCV format
+        # Use cv_bridge() to convert the ROS image to OpenCV format
         try:
             cv_image = self.bridge.imgmsg_to_cv2(ros_image, "bgr8")
             return np.array(cv_image, dtype=np.uint8)
@@ -313,7 +315,7 @@ class ROS2OpenCV2(object):
 
     def display_selection(self):
         # If the user is selecting a region with the mouse, display the
-        # corresonding rectangle for feedback.
+        # corresponding rectangle for feedback.
         if self.drag_start and self.is_rect_nonzero(self.selection):
             x, y, w, h = self.selection
             cv2.rectangle(self.marker_image, (x, y), (x + w, y + h),

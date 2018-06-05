@@ -30,7 +30,7 @@ class FaceDetector(ROS2OpenCV2):
 
         # Store all parameters together for passing to the detector
         self.haar_params = dict(scaleFactor=self.haar_scaleFactor,
-                                minNeighbors=self.haar_minNeighbors,                            
+                                minNeighbors=self.haar_minNeighbors,
                                 minSize=(self.haar_minSize, self.haar_minSize),
                                 maxSize=(self.haar_maxSize, self.haar_maxSize))
 
@@ -64,41 +64,51 @@ class FaceDetector(ROS2OpenCV2):
 
             # Keep tabs on the hit rate so far
             self.hit_rate = float(self.hits) / (self.hits + self.misses)
-        except:
-            pass
+        except Exception as e:
+            print e
 
         return cv_image
 
     def detect_face(self, input_image):
         # First check one of the frontal templates
         if self.cascade_1:
-            faces = self.cascade_1.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_1.detectMultiScale(
+                input_image, **self.haar_params)
 
         # If that fails, check the profile template
         if len(faces) == 0 and self.cascade_3:
-            faces = self.cascade_3.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_3.detectMultiScale(
+                input_image, **self.haar_params)
 
         # If that also fails, check a the other frontal template
         if len(faces) == 0 and self.cascade_2:
-            faces = self.cascade_2.detectMultiScale(input_image, **self.haar_params)
+            faces = self.cascade_2.detectMultiScale(
+                input_image, **self.haar_params)
 
         # The faces variable holds a list of face boxes.
-        # If one or more faces are detected, return the first one.first
+        # If one or more faces are detected, return the first one.
         if len(faces) > 0:
             face_box = faces[0]
         else:
-            # If no face were detected, print the "LOST FACE" message on the screen
+            # If no faces were detected, print the "LOST FACE" message on the
+            # screen
             if self.show_text:
                 font_face = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.5
-                cv2.putText(self.marker_image, "LOST FACE!", (int(self.frame_size[0] * 0.65), int(self.frame_size[1] * 0.9)), font_face, font_scale, (255, 50, 50))
-                face_box = None
+                cv2.putText(self.marker_image, "LOST FACE!",
+                            (int(self.frame_size[0] * 0.65),
+                             int(self.frame_size[1] * 0.9)),
+                            font_face, font_scale, (255, 50, 50))
+            face_box = None
 
         # Display the hit rate so far
         if self.show_text:
             font_face = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 0.5
-            cv2.putText(self.marker_image, "Hit Rate: " + str(trunc(self.hit_rate, 2)), (20, int(self.frame_size[1] * 0.9)), font_face, font_scale, (255, 255, 0))
+            cv2.putText(self.marker_image, "Hit Rate: " +
+                        str(trunc(self.hit_rate, 2)),
+                        (20, int(self.frame_size[1] * 0.9)),
+                        font_face, font_scale, (255, 255, 0))
 
         return face_box
 
@@ -116,7 +126,8 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             if face_detector.display_image is not None:
-                face_detector.show_image(face_detector.cv_window_name, face_detector.display_image)
+                face_detector.show_image(
+                    face_detector.cv_window_name, face_detector.display_image)
 
     except KeyboardInterrupt:
         print "Shutting down face detector node."

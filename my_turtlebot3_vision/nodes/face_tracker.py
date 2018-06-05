@@ -39,15 +39,18 @@ class FaceTracker(FaceDetector, LKTracker):
                 # STEP 2: If we aren't yet tracking keypoints, get them now
                 if self.track_box is None or not self.is_rect_nonzero(self.track_box):
                     self.track_box = self.detect_box
-                    self.keypoints = self.get_keypoints(self.grey, self.track_box)
+                    self.keypoints = self.get_keypoints(
+                        self.grey, self.track_box)
 
                 # STEP 3: If we have keypoints, track them using optical flow
                 if len(self.keypoints) > 0:
-                    # Store a copy of the current grey image used for LK tracking
+                    # Store a copy of the current grey image used for LK
+                    # tracking
                     if self.prev_grey is None:
                         self.prev_grey = self.grey
 
-                    self.track_box = self.track_keypoints(self.grey, self.prev_grey)
+                    self.track_box = self.track_keypoints(
+                        self.grey, self.prev_grey)
                 else:
                     # We have lost all keypoints so re-detect the face
                     self.detect_box = None
@@ -78,7 +81,8 @@ if __name__ == '__main__':
         face_tracker = FaceTracker(node_name)
         while not rospy.is_shutdown():
             if face_tracker.display_image is not None:
-                face_tracker.show_image(face_tracker.cv_window_name, face_tracker.display_image)
+                face_tracker.show_image(
+                    face_tracker.cv_window_name, face_tracker.display_image)
 
     except KeyboardInterrupt:
         print "Shutting down face tracker node."
