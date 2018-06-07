@@ -53,13 +53,13 @@ class FaceTracker(FaceDetector, LKTracker):
             # Equalize the grey histogram to minimize lighting effects
             self.grey = cv2.equalizeHist(self.grey)
 
-            # STEP 1: Detect the face if we haven't already
+            # Step 1: Detect the face if we haven't already
             if self.detect_box is None:
                 self.keypoints = list()
                 self.track_box = None
                 self.detect_box = self.detect_face(self.grey)
             else:
-                # STEP 2: If we aren't yet tracking keypoints, get them now
+                # Step 2: If we aren't yet tracking keypoints, get them now
                 if not self.track_box or not self.is_rect_nonzero(self.track_box):
                     self.track_box = self.detect_box
                     self.keypoints = self.get_keypoints(
@@ -69,20 +69,21 @@ class FaceTracker(FaceDetector, LKTracker):
                 if self.prev_grey is None:
                     self.prev_grey = self.grey
 
-                # STEP 3: If we have keypoints, track them using optical flow
+                # Step 3: If we have keypoints, track them using optical flow
                 self.track_box = self.track_keypoints(
                     self.grey, self.prev_grey)
 
-                # STEP 4: Drop keypoints that are too far from the main cluster
+                # Step 4: Drop keypoints that are too far from the main cluster
                 if self.frame_index % self.drop_keypoints_interval == 0 and len(self.keypoints) > 0:
                     ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(
                         self.abs_min_keypoints, self.std_err_xy, self.max_mse)
+
                     if score == -1:
                         self.detect_box = None
                         self.track_box = None
                         return cv_image
 
-                # STEP 5: Add keypoints if the number is getting too low
+                # Step 5: Add keypoints if the number is getting too low
                 if self.frame_index % self.add_keypoints_interval == 0 and len(self.keypoints) < self.min_keypoints:
                     self.expand_roi *= self.expand_roi_init
                     self.add_keypoints(self.track_box)
@@ -107,6 +108,7 @@ class FaceTracker(FaceDetector, LKTracker):
                         self.show_add_drop = not self.show_add_drop
                 except:
                     pass
+
         except AttributeError:
             pass
 
@@ -158,8 +160,8 @@ class FaceTracker(FaceDetector, LKTracker):
         new_keypoints = cv2.goodFeaturesToTrack(
             self.grey, mask=mask, **self.gf_params)
 
-        # Append new keypoints to the current list if they are not too far from
-        # the current cluster
+        # Append new keypoints to the current list if they are not
+        # too far from the current cluster
         if new_keypoints is not None:
             for x, y in np.float32(new_keypoints).reshape(-1, 2):
                 distance = self.distance_to_cluster((x, y), self.keypoints)
@@ -280,9 +282,9 @@ class FaceTracker(FaceDetector, LKTracker):
             except:
                 mse_z = 0
 
-            # Throw away the outliers based on depth using percent error rather than
-            # standard error since depth values can jump dramatically at object
-            # boundaries
+            # Throw away the outliers based on depth using percent error
+            # rather than standard error since depth values can jump
+            # dramatically at object boundaries
             for point in keypoints_z:
                 try:
                     z = self.depth_image[point[1], point[0]]

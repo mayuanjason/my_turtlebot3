@@ -41,7 +41,7 @@ class GoodFeatures(ROS2OpenCV2):
 
     def process_image(self, cv_image):
         try:
-            # If the user has not selectd a region, just return the image
+            # If the user has not selected a region, just return the image
             if not self.detect_box:
                 return cv_image
 
@@ -102,12 +102,12 @@ class GoodFeatures(ROS2OpenCV2):
 if __name__ == '__main__':
     try:
         node_name = "good_features"
-        good_feature = GoodFeatures(node_name)
+        good_features = GoodFeatures(node_name)
 
         while not rospy.is_shutdown():
-            if good_feature.display_image is not None:
-                good_feature.show_image(
-                    good_feature.cv_window_name, good_feature.display_image)
+            if good_features.display_image is not None:
+                good_features.show_image(
+                    good_features.cv_window_name, good_features.display_image)
 
     except KeyboardInterrupt:
         print "Shutting down the Good Features node."
