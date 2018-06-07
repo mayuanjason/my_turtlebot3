@@ -4,7 +4,7 @@ from mvnc import mvncapi as mvnc
 import rospy
 import cv2
 import numpy as np
-from my_turtlebot3_vision.ros2opencv2 import ROS2OpenCV2
+from my_turtlebot3_vision.ros2opencv2_raspi import ROS2OpenCV2
 
 
 class FaceDetector(ROS2OpenCV2):

@@ -4,8 +4,8 @@ import rospy
 import cv2
 import numpy as np
 from math import isnan
-from my_turtlebot3_vision.face_detector2 import FaceDetector
-from my_turtlebot3_vision.lk_tracker import LKTracker
+from my_turtlebot3_vision.face_detector_raspi import FaceDetector
+from my_turtlebot3_vision.lk_tracker_raspi import LKTracker
 
 
 class FaceTracker(FaceDetector, LKTracker):
