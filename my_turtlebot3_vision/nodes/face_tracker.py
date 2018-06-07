@@ -69,6 +69,7 @@ class FaceTracker(FaceDetector, LKTracker):
 
             # Set store a copy of the current image used for LK tracking
             self.prev_grey = self.grey
+
         except AttributeError:
             pass
 
@@ -79,6 +80,7 @@ if __name__ == '__main__':
     try:
         node_name = "face_tracker"
         face_tracker = FaceTracker(node_name)
+
         while not rospy.is_shutdown():
             if face_tracker.display_image is not None:
                 face_tracker.show_image(

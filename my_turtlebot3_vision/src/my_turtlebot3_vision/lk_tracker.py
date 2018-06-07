@@ -40,15 +40,15 @@ class LKTracker(GoodFeatures):
 
     def process_image(self, cv_image):
         try:
-            # If we don't yet have a detection box (drawn by the user with the
-            # mouse), keep waiting
+            # If we don't yet have a detection box (drawn by the user
+            # with the mouse), keep waiting
             if self.detect_box is None:
                 return cv_image
 
             # Create a greyscale version of the image
             self.grey = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
 
-            # Equalize the histogram to reduce lighting effects
+            # Equalize the grey histogram to minimize lighting effects
             self.grey = cv2.equalizeHist(self.grey)
 
             # If we haven't yet started tracking, set the track box to the
@@ -60,8 +60,8 @@ class LKTracker(GoodFeatures):
                 if self.prev_grey is None:
                     self.prev_grey = self.grey
 
-                # Now that have keypoints, track them to the next frame using
-                # optical flow
+                # Now that have keypoints, track them to the next frame
+                # using optical flow
                 self.track_box = self.track_keypoints(
                     self.grey, self.prev_grey)
 
@@ -71,7 +71,7 @@ class LKTracker(GoodFeatures):
                     cc = chr(self.keystroke & 255).lower()
                     if cc == 'c':
                         # Clear the current keypoints
-                        self.keypoints = list()
+                        self.keypoints = None
                         self.track_box = None
                         self.detect_box = None
                 except Exception as e:
@@ -84,12 +84,12 @@ class LKTracker(GoodFeatures):
         return cv_image
 
     def track_keypoints(self, grey, prev_grey):
-        # We are tracking points between the previous frame and the current
-        # frame
+        # We are tracking points between the previous frame and the
+        # current frame
         img0, img1 = prev_grey, grey
 
-        # Reshape the current keypoints into a numpy array required by
-        # calcOpticalFlowPyrLK()
+        # Reshape the current keypoints into a numpy array required
+        # by calcOpticalFlowPyrLK()
         p0 = np.float32([p for p in self.keypoints]).reshape(-1, 1, 2)
 
         # Calculate the optical flow from the previous frame to the current
@@ -107,15 +107,15 @@ class LKTracker(GoodFeatures):
             # flows
             d = abs(p0 - p0r).reshape(-1, 2).max(-1)
 
-            # If the distance between pairs of points is < 1 pixel, set a value in the
-            # "good" array to True, otherwise False
+            # If the distance between pairs of points is < 1 pixel, set
+            # a value in the "good" array to True, otherwise False
             good = d < 1
 
             # Initialize a list to hold new keypoints
             new_keypoints = list()
 
-            # Cycle through all current and new keypoints and only keep those
-            # that satisfy the "good" condition above
+            # Cycle through all current and new keypoints and only keep
+            # those that satisfy the "good" condition above
             for (x, y), good_flag in zip(p1.reshape(-1, 2), good):
                 if not good_flag:
                     continue
@@ -125,6 +125,7 @@ class LKTracker(GoodFeatures):
                 cv2.circle(self.marker_image, (x, y),
                            self.feature_size, (0, 255, 0, 0), cv2.FILLED, 8, 0)
 
+            # Set the global keypoint list to the new list
             self.keypoints = new_keypoints
 
             # Convert the keypoints list to a numpy array
@@ -148,6 +149,7 @@ if __name__ == '__main__':
     try:
         node_name = "lk_tracker"
         lk_tracker = LKTracker(node_name)
+
         while not rospy.is_shutdown():
             if lk_tracker.display_image is not None:
                 lk_tracker.show_image(
