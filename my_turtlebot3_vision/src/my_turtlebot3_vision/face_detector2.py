@@ -82,9 +82,6 @@ class FaceDetector(ROS2OpenCV2):
         return im_data
 
     def detect_face(self, img, threshold=[0.405, 0.8473], factor=0.709):
-        if self.init_done == False:
-            return None
-
         w = 128
         h = 96
         scale_factor = img.shape[1] / w

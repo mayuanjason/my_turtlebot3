@@ -1,20 +1,10 @@
-<launch>
+<launch>  
+    <node pkg="my_turtlebot3_vision" type="face_tracker2.py" name="face_tracker2" output="screen">
 
-    <node pkg="tb_vision" type="face_tracker3.py" name="face_tracker3" output="screen">
-
-        <remap from="input_rgb_image" to="/camera/rgb/image_raw" />
+        <remap from="input_rgb_image" to="/image_raw" />
         <remap from="input_depth_image" to="/camera/depth/image_raw" />
 
         <rosparam>
-            gf_maxCorners: 200
-            gf_qualityLevel: 0.02
-            gf_minDistance: 7
-            gf_blockSize: 10
-            gf_useHarrisDetector: False
-            gf_k: 0.04
-            feature_size: 1
-            show_text: True
-
             use_depth_for_tracking: True
             min_keypoints: 20
             abs_min_keypoints: 6 
@@ -24,6 +14,7 @@
             add_keypoint_distance: 10
             add_keypoints_interval: 1
             drop_keypoints_interval: 1
+            show_text: True
             show_features: True
             show_add_drop: False
             feature_size: 1
@@ -40,10 +31,8 @@
             haar_maxSize: 150
         </rosparam>
 
-        <param name="cascade_1" value="$(find tb_vision)/data/haar_detectors/haarcascade_frontalface_alt2.xml" />
-        <param name="cascade_2" value="$(find tb_vision)/data/haar_detectors/haarcascade_frontalface_alt.xml" />
-        <param name="cascade_3" value="$(find tb_vision)/data/haar_detectors/haarcascade_profileface.xml" />
+        <param name="pnet_graph_filename" value="$(find my_turtlebot3_vision)/data/mtcnn/p2838.graph" />
+        <param name="onet_graph_filename" value="$(find my_turtlebot3_vision)/data/mtcnn/o.graph" />
 
     </node>
-  
 </launch>
