@@ -1,6 +1,6 @@
 <launch>
 
-    <node pkg="my_turtlebot3_vision" type="face_detector2.py" name="face_detector2" output="screen">
+    <node pkg="my_turtlebot3_vision" type="face_detector_raspi.py" name="face_detector2" output="screen">
 
         <remap from="input_rgb_image" to="/image_raw" />
 

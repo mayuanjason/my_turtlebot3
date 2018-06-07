@@ -5,7 +5,7 @@
         <remap from="input_depth_image" to="/camera/depth/image_raw" />
 
         <rosparam>
-            use_depth_for_tracking: True
+            use_depth_for_tracking: False
             min_keypoints: 20
             abs_min_keypoints: 6 
             std_err_xy: 2.5
