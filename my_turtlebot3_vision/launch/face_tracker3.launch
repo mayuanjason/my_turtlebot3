@@ -1,5 +1,5 @@
 <launch>  
-    <node pkg="my_turtlebot3_vision" type="face_tracker2.py" name="face_tracker2" output="screen">
+    <node pkg="my_turtlebot3_vision" type="face_tracker3.py" name="face_tracker3" output="screen">
 
         <remap from="input_rgb_image" to="/image_raw" />
         <remap from="input_depth_image" to="/camera/depth/image_raw" />
