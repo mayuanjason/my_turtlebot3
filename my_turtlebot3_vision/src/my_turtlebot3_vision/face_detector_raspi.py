@@ -60,10 +60,8 @@ class FaceDetector(ROS2OpenCV2):
         if self.init_done == False:
             return cv_image
 
-        image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-
         # Attempt to detect a face
-        self.detect_box = self.detect_face(image)
+        self.detect_box = self.detect_face(cv_image)
 
         # Did we find one?
         if self.detect_box is not None:

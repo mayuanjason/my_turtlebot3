@@ -50,10 +50,8 @@ class FaceTracker(FaceDetector, LKTracker):
             if self.init_done == False:
                 return cv_image
 
-            image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-
             # Create a greyscale version of the image
-            self.grey = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+            self.grey = cv2.cvtColor(cv_image, cv2.COLOR_RGB2GRAY)
 
             # Equalize the grey histogram to minimize lighting effects
             self.grey = cv2.equalizeHist(self.grey)
@@ -62,7 +60,7 @@ class FaceTracker(FaceDetector, LKTracker):
             if self.detect_box is None:
                 self.keypoints = list()
                 self.track_box = None
-                self.detect_box = self.detect_face(image)
+                self.detect_box = self.detect_face(cv_image)
             else:
                 # Step 2: If we aren't yet tracking keypoints, get them now
                 if not self.track_box or not self.is_rect_nonzero(self.track_box):
@@ -82,7 +80,6 @@ class FaceTracker(FaceDetector, LKTracker):
                 if self.frame_index % self.drop_keypoints_interval == 0 and len(self.keypoints) > 0:
                     ((cog_x, cog_y, cog_z), mse_xy, mse_z, score) = self.drop_keypoints(
                         self.abs_min_keypoints, self.std_err_xy, self.max_mse)
-
                     if score == -1:
                         self.detect_box = None
                         self.track_box = None
@@ -109,7 +106,7 @@ class FaceTracker(FaceDetector, LKTracker):
                         self.keypoints = []
                         self.track_box = None
                         self.detect_box = None
-                    elif cc == 'd':
+                    elif cc == 'd':                        
                         self.show_add_drop = not self.show_add_drop
                 except:
                     pass
@@ -152,10 +149,10 @@ class FaceTracker(FaceDetector, LKTracker):
 
         # Display the expanded ROI with a yellow rectangle
         if self.show_add_drop:
-            cv2.rectangle(self.marker_image, pt1, pt2, cv2.RGB(255, 255, 0))
+            cv2.rectangle(self.marker_image, pt1, pt2, (255, 255, 0))
 
         # Create a filled white ellipse within the track box to define the ROI
-        cv2.ellipse(mask, mask_box, cv2.RGB(255, 255, 255), cv2.FILLED)
+        cv2.ellipse(mask, mask_box, (255, 255, 255), cv2.FILLED)        
 
         if self.keypoints is not None:
             # Mask the current keypoints
@@ -273,7 +270,7 @@ class FaceTracker(FaceDetector, LKTracker):
                 n_xy -= 1
 
         # Now do the same for depth
-        if self.use_depth_for_tracking and self.depth_image is not None:  # mayuan: is not None
+        if self.use_depth_for_tracking and self.depth_image is not None:
             sse = 0
             for point in keypoints_z:
                 try:

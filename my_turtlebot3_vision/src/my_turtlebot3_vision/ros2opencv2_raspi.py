@@ -22,7 +22,6 @@ class ROS2OpenCV2(object):
         # A number of parameters to determine what gets displayed on the
         # screen. These can be overridden the appropriate launch file
         self.show_text = rospy.get_param("~show_text", True)
-        self.show_features = rospy.get_param("~show_features", True)
         self.show_boxes = rospy.get_param("~show_boxes", True)
         self.flip_image = rospy.get_param("~flip_image", False)
         self.feature_size = rospy.get_param("~feature_size", 1)
@@ -105,39 +104,32 @@ class ROS2OpenCV2(object):
             self.selection = (xmin, ymin, xmax - xmin, ymax - ymin)
 
     def image_callback(self, ros_image):
-        # Store the image header in a global variable
-        self.image_header = ros_image.header
-
         # Time this loop to get cycles per second
         start = time.time()
 
         # Convert the ROS Image to OpenCV format using a cv_bridge helper
         # function
-        frame = self.convert_image(ros_image)
+        self.frame = self.convert_image(ros_image)
 
         # Some webcams invert the image
         if self.flip_image:
-            frame = cv2.flip(frame, 0)
+            self.frame = cv2.flip(self.frame, 0)
 
         # Store the frame width and height in a pair of global variables
         if self.frame_width is None:
-            self.frame_size = (frame.shape[1], frame.shape[0])
+            self.frame_size = (self.frame.shape[1], self.frame.shape[0])
             self.frame_width, self.frame_height = self.frame_size
 
         # Create the marker image we will use for display purposes
         if self.marker_image is None:
-            self.marker_image = np.zeros_like(frame)
-
-        # Copy the current frame to the global image in case we need it
-        # elsewhere
-        self.frame = frame.copy()
+            self.marker_image = np.zeros_like(self.frame)
 
         # Reset the marker image if we're not displaying the history
         if not self.keep_marker_history:
             self.marker_image = np.zeros_like(self.marker_image)
 
         # Process the image to detect and track objects or features
-        processed_image = self.process_image(frame)
+        processed_image = self.process_image(self.frame)
 
         # Make a global copy
         self.processed_image = processed_image.copy()
@@ -235,8 +227,6 @@ class ROS2OpenCV2(object):
                 cc = chr(self.keystroke & 255).lower()
                 if cc == 'n':
                     self.night_mode = not self.night_mode
-                elif cc == 'f':
-                    self.show_features = not self.show_features
                 elif cc == 'b':
                     self.show_boxes = not self.show_boxes
                 elif cc == 't':
@@ -264,7 +254,7 @@ class ROS2OpenCV2(object):
     def convert_image(self, ros_image):
         # Use cv_bridge() to convert the ROS image to OpenCV format
         try:
-            cv_image = self.bridge.imgmsg_to_cv2(ros_image, "bgr8")
+            cv_image = self.bridge.imgmsg_to_cv2(ros_image, "rgb8")
             return np.array(cv_image, dtype=np.uint8)
         except CvBridgeError, e:
             print e

@@ -5,30 +5,74 @@
         <remap from="input_depth_image" to="/camera/depth/image_raw" />
 
         <rosparam>
+            <!--If you are using a depth camera, setting this value to True
+                will drop keypoints that fall too far away from the face plane.
+                (This parameter is assumed to be False if using a webcam.) -->
             use_depth_for_tracking: False
+
+            <!-- The minimum number of keypoints before we will add new ones. -->
             min_keypoints: 20
+
+            <!-- The absolute minimum number of keypoints before we consider 
+                 the face lost and try to re-detect it. -->
             abs_min_keypoints: 6 
-            std_err_xy: 2.5
+
+            <!-- The standard error (in pixels) for determining 
+                 whether or not a keypoint is an outlier. -->
+            std_err_xy: 3.0
+
+            <!-- The depth threshold (as a percent) that determines when we 
+                 drop a keypoint for falling too far off the face plane. -->
             pct_err_z: 1.5
+
+            <!-- The maximum total mean squared error in the current feature
+                 cluster before we start over and re-detect the face. -->
             max_mse: 10000
+
+            <!-- new keypoint must be at least this distance (in pixels)
+                 from any existing keypoint. -->
             add_keypoint_distance: 10
+
+            <!-- How often do we attempt to add new keypoints. A value of 
+                 1 means every frame, 2 every other frame and so on. -->
             add_keypoints_interval: 1
+
+            <!-- How often do we attempt to drop keypoints. A value of
+                 1 means every frame, 2 every other frame and so on. -->
             drop_keypoints_interval: 1
+
+            <!-- Do we show text on the display? -->
             show_text: True
-            show_features: True
-            show_add_drop: False
+  
+            show_add_drop: True
+
+            <!-- How big should the feature points be (in pixels)? -->
             feature_size: 1
+
+            <!-- When looking for new keypoints, the expansion 
+                 factor to grow the ROI on each cycle. -->
             expand_roi: 1.02
+
+            <!-- Puts an upper limit on how many keypoints are returned. -->
             gf_maxCorners: 200
+
+            <!-- Reflects how strong a corner-like feature must be before it
+                 counts as a keypoint. Setting lower values returns more points. -->
             gf_qualityLevel: 0.02
+
+            <!-- The minimum number of pixels between keypoints. -->
             gf_minDistance: 7
+
+            <!-- The size of the neighborhood around a pixel used to
+                 compute whether or not there is a corner there. -->
             gf_blockSize: 10
+
+            <!-- Whether or not to use the original Harris corner 
+                 detector or a minimum eigenvalue criterion. -->
             gf_useHarrisDetector: False
+
+            <!-- A free parameter for the Harris corner detector. -->
             gf_k: 0.04
-            haar_scaleFactor: 1.3
-            haar_minNeighbors: 3
-            haar_minSize: 30
-            haar_maxSize: 150
         </rosparam>
 
         <param name="pnet_graph_filename" value="$(find my_turtlebot3_vision)/data/mtcnn/p2838.graph" />
